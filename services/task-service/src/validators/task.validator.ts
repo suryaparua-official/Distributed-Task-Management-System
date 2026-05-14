@@ -2,8 +2,8 @@ import { z } from "zod";
 
 export const createTaskSchema = z.object({
   title: z
-    .string({ required_error: "Title is required" })
-    .min(1, "Title cannot be empty")
+    .string()
+    .min(1, "Title is required")
     .max(200, "Title must be at most 200 characters")
     .trim(),
 

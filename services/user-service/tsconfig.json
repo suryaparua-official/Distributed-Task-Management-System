@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "rootDir": "./src",
+    "rootDir": ".",
     "outDir": "./dist",
 
     "module": "nodenext",
@@ -8,7 +8,7 @@
     "target": "ES2020",
 
     "lib": ["ES2020"],
-    "types": ["node"],
+    "types": ["node", "jest"],
 
     "sourceMap": false,
     "declaration": false,
@@ -19,6 +19,7 @@
 
     "esModuleInterop": true,
     "resolveJsonModule": true,
+    "isolatedModules": true,
 
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true
