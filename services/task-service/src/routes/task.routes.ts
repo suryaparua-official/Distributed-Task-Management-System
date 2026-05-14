@@ -6,6 +6,11 @@ import {
   updateTask,
 } from "../controllers/task.controller.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
+import { validate } from "../middleware/validate.middleware.js";
+import {
+  createTaskSchema,
+  updateTaskSchema,
+} from "../validators/task.validator.js";
 
 const router = express.Router();
 
@@ -17,6 +22,17 @@ const router = express.Router();
  *     tags: [Tasks]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         example: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         example: 20
  *     responses:
  *       200:
  *         description: List of tasks
@@ -45,12 +61,14 @@ router.get("/", authMiddleware, getTasks);
  *                 example: Build backend API
  *               description:
  *                 type: string
- *                 example: Implement authentication and task CRUD system
+ *                 example: Implement authentication and task CRUD
  *     responses:
  *       201:
  *         description: Task created successfully
+ *       400:
+ *         description: Validation failed
  */
-router.post("/", authMiddleware, createTask);
+router.post("/", authMiddleware, validate(createTaskSchema), createTask);
 
 /**
  * @swagger
@@ -66,7 +84,6 @@ router.post("/", authMiddleware, createTask);
  *         required: true
  *         schema:
  *           type: string
- *         example: 64f1a2b3c4d5e6f7890abc12
  *     requestBody:
  *       required: true
  *       content:
@@ -76,15 +93,17 @@ router.post("/", authMiddleware, createTask);
  *             properties:
  *               title:
  *                 type: string
- *                 example: Updated Task Title
  *               description:
  *                 type: string
- *                 example: Updated task description
+ *               completed:
+ *                 type: boolean
  *     responses:
  *       200:
  *         description: Task updated successfully
+ *       400:
+ *         description: Validation failed
  */
-router.put("/:id", authMiddleware, updateTask);
+router.put("/:id", authMiddleware, validate(updateTaskSchema), updateTask);
 
 /**
  * @swagger
@@ -100,7 +119,6 @@ router.put("/:id", authMiddleware, updateTask);
  *         required: true
  *         schema:
  *           type: string
- *         example: 64f1a2b3c4d5e6f7890abc12
  *     responses:
  *       200:
  *         description: Task deleted successfully

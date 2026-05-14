@@ -1,8 +1,11 @@
 import express from "express";
 import dotenv from "dotenv";
+import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { connectDB } from "./config/db.js";
 import authRoutes from "./routes/auth.routes.js";
+import logger from "./utils/logger.js";
+import { requestLogger } from "./middleware/requestLogger.middleware.js";
 
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
@@ -11,7 +14,34 @@ dotenv.config();
 
 const app = express();
 app.set("trust proxy", 1);
-app.use(express.json());
+
+// ================= SECURITY HEADERS =================
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:"],
+      },
+    },
+    frameguard: { action: "deny" },
+    noSniff: true,
+    xssFilter: true,
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
+    hidePoweredBy: true,
+  }),
+);
+
+app.use(express.json({ limit: "10kb" }));
+
+// ================= REQUEST LOGGING =================
+app.use(requestLogger);
 
 // ================= RATE LIMITING =================
 const authLimiter = rateLimit({
@@ -64,9 +94,28 @@ app.get("/", (req, res) => {
   res.send("User service running");
 });
 
-app.use((req, res) => {
+// ================= 404 =================
+app.use((req: any, res: any) => {
   res.status(404).json({ message: "Route not found" });
 });
+
+// ================= GLOBAL ERROR HANDLER =================
+app.use(
+  (
+    err: any,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    logger.error("Unhandled error", {
+      message: err.message,
+      stack: err.stack,
+      url: req.originalUrl,
+      method: req.method,
+    });
+    res.status(500).json({ message: "Internal server error" });
+  },
+);
 
 // ================= BOOT =================
 const startServer = async () => {
@@ -74,11 +123,11 @@ const startServer = async () => {
     await connectDB();
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
-      console.log(`User service running on http://localhost:${PORT}`);
-      console.log(`Swagger docs → http://localhost:${PORT}/api-docs`);
+      logger.info("User service started", { port: PORT });
+      logger.info(`Swagger docs -> http://localhost:${PORT}/api-docs`);
     });
   } catch (error) {
-    console.error("Server failed to start", error);
+    logger.error("Server failed to start", { error });
     process.exit(1);
   }
 };
