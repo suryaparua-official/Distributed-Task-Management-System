@@ -7,7 +7,7 @@ export default function Navbar() {
 
   return (
     <div className="flex justify-between items-center px-6 py-4 bg-[#121212] border-b border-gray-800">
-      <h1 className="text-xl font-semibold">Primetrade.ai</h1>
+      <h1 className="text-xl font-semibold">Task Manager</h1>
 
       <div className="flex items-center gap-4">
         {role && (

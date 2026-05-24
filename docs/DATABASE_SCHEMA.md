@@ -2,7 +2,7 @@
 
 **Database:** MongoDB 6
 **ODM:** Mongoose
-**Database name:** `primetrade`
+**Database name:** `taskmanager`
 
 ---
 
@@ -29,8 +29,8 @@ Managed by: `user-service`
 ```json
 {
   "_id": "64f1a2b3c4d5e6f7890abc12",
-  "name": "Surya Parua",
-  "email": "surya@example.com",
+  "name": "Jane Doe",
+  "email": "jane@example.com",
   "password": "$2b$10$...",
   "role": "user",
   "createdAt": "2026-04-22T10:00:00.000Z",
@@ -94,7 +94,7 @@ users (1) ──────────────── (many) tasks
 docker exec -it mongo mongosh
 
 # Switch to database
-use primetrade
+use taskmanager
 
 # Count documents
 db.users.countDocuments()

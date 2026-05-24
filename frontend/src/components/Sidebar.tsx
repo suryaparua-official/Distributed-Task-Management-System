@@ -1,6 +1,6 @@
 "use client";
 
-import { LayoutDashboard, ListTodo, Shield } from "lucide-react";
+import { LayoutDashboard, ListTodo, Shield, User } from "lucide-react";
 import { useApp } from "@/context/AppContext";
 
 export default function Sidebar({ active, setActive }: any) {
@@ -9,6 +9,7 @@ export default function Sidebar({ active, setActive }: any) {
   const menu = [
     { name: "Dashboard", icon: LayoutDashboard },
     { name: "Tasks", icon: ListTodo },
+    { name: "Profile", icon: User },
   ];
 
   if (role === "admin") {

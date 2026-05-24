@@ -45,7 +45,7 @@
            ▼                                    ▼
 ┌─────────────────────┐            ┌────────────────────────┐
 │   MongoDB :27017    │            │    Redis :6379         │
-│   db: primetrade    │            │                        │
+│   db: taskmanager   │            │                        │
 │   • users           │            │  Key: tasks:{userId}   │
 │   • tasks           │            │  TTL: 60 seconds       │
 │   Index: tasks.userId│           │  Invalidated on write  │
@@ -154,4 +154,4 @@ docker compose up --scale user-service=3 --scale task-service=2
 
 Nginx round-robins across all instances. Redis ensures cache is consistent across task-service replicas (shared cache, not per-instance).
 
-For production, move Redis and MongoDB to managed services (Redis Cloud / MongoDB Atlas) and deploy services on Kubernetes with HPA.
+For production, move Redis and MongoDB to managed services and deploy services on Kubernetes with HPA.

@@ -63,6 +63,7 @@ export const AppProvider = ({ children }: any) => {
   const [loading, setLoading] = useState(false);
 
   const taskAPI = useRef(axios.create({ baseURL: TASK_API }));
+  const interceptorId = useRef<number | null>(null);
 
   // ================= UTIL =================
 
@@ -86,7 +87,10 @@ export const AppProvider = ({ children }: any) => {
   }, []);
 
   useEffect(() => {
-    taskAPI.current.interceptors.request.use((config) => {
+    if (interceptorId.current !== null) {
+      taskAPI.current.interceptors.request.eject(interceptorId.current);
+    }
+    interceptorId.current = taskAPI.current.interceptors.request.use((config) => {
       if (token) config.headers.Authorization = `Bearer ${token}`;
       return config;
     });

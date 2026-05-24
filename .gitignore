@@ -1,0 +1,22 @@
+# Environment files with secrets
+.env
+.env.local
+.env.production
+.claude
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.next/
+out/
+build/
+
+# Misc
+.DS_Store
+*.pem
+npm-debug.log*
+yarn-error.log*
+*.tsbuildinfo
+coverage/

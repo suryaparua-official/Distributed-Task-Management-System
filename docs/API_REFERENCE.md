@@ -29,8 +29,8 @@ Register a new user.
 **Body:**
 ```json
 {
-  "name": "Surya Parua",
-  "email": "surya@example.com",
+  "name": "Jane Doe",
+  "email": "jane@example.com",
   "password": "password123"
 }
 ```
@@ -192,8 +192,8 @@ List all registered users.
 [
   {
     "_id": "64f1a2b3c4d5e6f7890abc12",
-    "name": "John Doe",
-    "email": "john@example.com",
+    "name": "Alice Smith",
+    "email": "alice@example.com",
     "role": "user",
     "createdAt": "2026-04-22T10:00:00Z"
   }

@@ -1,6 +1,6 @@
-# PrimeTrade.ai — Scalable REST API with Auth & Role-Based Access
+# Task Manager — Scalable REST API with Auth & Role-Based Access
 
-A production-ready backend system built as a microservices architecture with JWT authentication, RBAC, Redis caching, rate limiting, and a Next.js frontend — fully containerised with Docker.
+A production-ready task management system built as a microservices architecture with JWT authentication, RBAC, Redis caching, rate limiting, and a Next.js frontend — fully containerised with Docker.
 
 > See the [`docs/`](./docs/) folder for detailed guides:
 >
@@ -77,8 +77,9 @@ docker compose up --build
 ### Infrastructure
 
 - 6-container Docker Compose setup (mongo, redis, user-service, task-service, nginx, frontend)
-- Healthcheck-gated `depends_on` — nginx waits for backends, backends wait for mongo/redis
+- Healthcheck-gated `depends_on` — all services wait for their dependencies to be healthy
 - Nginx regex location blocks (no trailing-slash 301 redirect on OPTIONS preflight)
+- All services fully local — no external cloud dependencies required
 
 ---
 
@@ -103,9 +104,10 @@ docker compose up --build
 ## Project Structure
 
 ```
-primetrade.ai-assignment/
+task-manager/
 ├── README.md
 ├── docker-compose.yml
+├── .env.example                   ← Root env template (JWT_SECRET override)
 ├── docs/                          ← All documentation
 │   ├── API_REFERENCE.md
 │   ├── SETUP_GUIDE.md

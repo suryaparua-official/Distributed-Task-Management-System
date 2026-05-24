@@ -44,6 +44,17 @@ docker compose build task-service
 docker compose up -d task-service
 ```
 
+### Override the JWT secret (optional)
+
+The default JWT secret is a safe local-dev placeholder. To override it, create a root `.env` file:
+
+```bash
+cp .env.example .env
+# Edit .env and set a strong JWT_SECRET
+```
+
+Docker Compose automatically loads `.env` from the project root.
+
 ---
 
 ## Option 2 — Local Development
@@ -63,7 +74,7 @@ docker run -d --name redis  -p 6379:6379   redis:7-alpine
 cd services/user-service
 cp .env.example .env
 # Edit .env:
-#   MONGO_URI=mongodb://localhost:27017/primetrade
+#   MONGO_URI=mongodb://localhost:27017/taskmanager
 #   JWT_SECRET=devsecret
 #   PORT=5000
 npm install
@@ -76,7 +87,7 @@ npm run dev
 cd services/task-service
 cp .env.example .env
 # Edit .env:
-#   MONGO_URI=mongodb://localhost:27017/primetrade
+#   MONGO_URI=mongodb://localhost:27017/taskmanager
 #   JWT_SECRET=devsecret
 #   PORT=5001
 #   REDIS_URL=redis://localhost:6379
@@ -105,7 +116,7 @@ After starting, register a normal user, then promote them:
 
 ```bash
 docker exec -it mongo mongosh
-use primetrade
+use taskmanager
 db.users.updateOne(
   { email: "your@email.com" },
   { $set: { role: "admin" } }
@@ -119,10 +130,16 @@ Log out and log back in — the Admin panel will appear in the sidebar.
 
 ## Environment Variables
 
+### Root `.env` (Docker Compose override)
+
+```env
+JWT_SECRET=your_strong_secret_here_change_in_production
+```
+
 ### User Service — `services/user-service/.env`
 
 ```env
-MONGO_URI=mongodb://mongo:27017/primetrade
+MONGO_URI=mongodb://localhost:27017/taskmanager
 JWT_SECRET=your_strong_secret_here_change_in_production
 PORT=5000
 ```
@@ -130,10 +147,10 @@ PORT=5000
 ### Task Service — `services/task-service/.env`
 
 ```env
-MONGO_URI=mongodb://mongo:27017/primetrade
+MONGO_URI=mongodb://localhost:27017/taskmanager
 JWT_SECRET=your_strong_secret_here_change_in_production
 PORT=5001
-REDIS_URL=redis://redis:6379
+REDIS_URL=redis://localhost:6379
 ```
 
 ### Frontend — `frontend/.env.local` (local dev only)
