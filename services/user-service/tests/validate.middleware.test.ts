@@ -18,8 +18,8 @@ const mockNext: NextFunction = jest.fn();
 describe("validate middleware", () => {
   it("should call next() if validation passes", () => {
     const req = mockReq({
-      name: "Surya Parua",
-      email: "surya@example.com",
+      name: "Jane Doe",
+      email: "jane@example.com",
       password: "secure123",
     });
     const res = mockRes();
@@ -32,7 +32,7 @@ describe("validate middleware", () => {
 
   it("should return 400 if validation fails", () => {
     const req = mockReq({
-      name: "S",
+      name: "J",
       email: "not-an-email",
       password: "123",
     });
@@ -60,15 +60,15 @@ describe("validate middleware", () => {
 
   it("should set req.body to parsed data on success", () => {
     const req = mockReq({
-      name: "  Surya  ",
-      email: "SURYA@EXAMPLE.COM",
+      name: "  Jane  ",
+      email: "JANE@EXAMPLE.COM",
       password: "secure123",
     });
     const res = mockRes();
 
     validate(registerSchema)(req as Request, res as Response, mockNext);
 
-    expect(req.body.email).toBe("surya@example.com");
-    expect(req.body.name).toBe("Surya");
+    expect(req.body.email).toBe("jane@example.com");
+    expect(req.body.name).toBe("Jane");
   });
 });

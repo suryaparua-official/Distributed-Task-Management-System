@@ -1,31 +1,20 @@
-# Task Manager — Scalable REST API with Auth & Role-Based Access
+# Task Manager
 
-A production-ready task management system built as a microservices architecture with JWT authentication, RBAC, Redis caching, rate limiting, and a Next.js frontend — fully containerised with Docker.
+A production-ready, full-stack task management application built on a microservices architecture. Features JWT authentication with role-based access control, Redis caching, rate limiting, and a modern Next.js frontend — fully containerised and runnable with a single Docker Compose command.
 
-> See the [`docs/`](./docs/) folder for detailed guides:
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.md)
+
+> **Documentation**
 >
-> - [API Reference](./docs/API_REFERENCE.md)
-> - [Setup Guide](./docs/SETUP_GUIDE.md)
-> - [Architecture](./docs/ARCHITECTURE.md)
-> - [Redis Caching](./docs/REDIS_CACHING.md)
-> - [Security](./docs/SECURITY.md)
-> - [Database Schema](./docs/DATABASE_SCHEMA.md)
-> - [Scalability Note](./docs/SCALABILITY_NOTE.md)
-
----
-
-## Tech Stack
-
-| Layer      | Technology                       |
-| ---------- | -------------------------------- |
-| Backend    | Node.js + Express 5 + TypeScript |
-| Auth       | JWT + bcryptjs                   |
-| Cache      | **Redis 7** (task list caching)  |
-| Database   | MongoDB 6 + Mongoose             |
-| Frontend   | Next.js 15 + Tailwind CSS        |
-| Gateway    | Nginx (reverse proxy + CORS)     |
-| Deployment | Docker + Docker Compose          |
-| API Docs   | Swagger UI                       |
+> | Guide | Description |
+> |-------|-------------|
+> | [Setup Guide](./docs/SETUP_GUIDE.md) | Docker & local dev setup |
+> | [API Reference](./docs/API_REFERENCE.md) | All endpoints with examples |
+> | [Architecture](./docs/ARCHITECTURE.md) | System design & request flows |
+> | [Database Schema](./docs/DATABASE_SCHEMA.md) | Collections, fields, indexes |
+> | [Redis Caching](./docs/REDIS_CACHING.md) | Cache strategy & verification |
+> | [Security](./docs/SECURITY.md) | Auth, RBAC, rate limiting, CORS |
+> | [Scalability](./docs/SCALABILITY_NOTE.md) | What's implemented & the roadmap |
 
 ---
 
@@ -38,125 +27,148 @@ cd primetrade.ai-assignment
 docker compose up --build
 ```
 
-| Service      | URL                            |
-| ------------ | ------------------------------ |
-| Frontend     | http://localhost:3000          |
-| API Gateway  | http://localhost:8000          |
-| User Swagger | http://localhost:5000/api-docs |
-| Task Swagger | http://localhost:5001/api-docs |
-| MongoDB      | localhost:27017                |
-| Redis        | localhost:6379                 |
+All services start and health-check automatically. No manual setup required.
 
-**→ Full setup instructions:** [docs/SETUP_GUIDE.md](./docs/SETUP_GUIDE.md)
+| Service | URL |
+|---------|-----|
+| **Frontend** | http://localhost:3000 |
+| **API Gateway** (Nginx) | http://localhost:8000 |
+| **User Service Swagger** | http://localhost:5000/api-docs |
+| **Task Service Swagger** | http://localhost:5001/api-docs |
+| MongoDB | localhost:27017 |
+| Redis | localhost:6379 |
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Next.js 15 · React 19 · TypeScript · Tailwind CSS v4 |
+| Gateway | Nginx (reverse proxy · CORS · load balancing) |
+| Auth Service | Node.js 22 · Express 5 · TypeScript · JWT · bcryptjs |
+| Task Service | Node.js 22 · Express 5 · TypeScript · Redis client |
+| Cache | Redis 7 (60-second task list cache, write-through invalidation) |
+| Database | MongoDB 6 · Mongoose (two collections, compound indexes) |
+| Validation | Zod (both services) |
+| Logging | Winston (structured JSON logs) |
+| API Docs | Swagger UI (both services) |
+| Containerisation | Docker · Docker Compose (6 services) |
 
 ---
 
 ## Features
 
-### Backend
+### Authentication & Authorisation
+- Register and login with email/password
+- JWT tokens (HS256, 7-day expiry) — stateless, horizontal-scale ready
+- Role-based access control: `user` and `admin` roles
+- Rate limiting: 10 requests per IP per 15 minutes on auth endpoints
 
-- JWT authentication (register, login, protected routes)
-- Role-based access: `user` vs `admin`
-- Task CRUD with ownership enforcement
-- **Redis caching** — task list cached 60s, write-through invalidation
-- **Rate limiting** — 10 req/15min on login & register
-- **Pagination** — `GET /tasks?page=1&limit=20`
-- `userId` index on tasks collection
-- API versioning at `/api/v1/`
-- Swagger docs on both services
-- Health endpoints for Docker healthchecks
+### Task Management
+- Full CRUD with per-user ownership enforcement
+- Pagination: `GET /tasks?page=1&limit=20` (max 100/page)
+- Redis caching: default task list cached 60 seconds, invalidated on any write
+- `userId` index on tasks collection — O(log n) lookups at scale
 
 ### Frontend (Next.js)
-
-- Register / login with toast feedback
-- Protected dashboard (JWT-gated)
-- Task CRUD: create, inline edit, toggle complete, delete
-- Admin panel: list all users, delete users
-- Role-based sidebar (Admin tab visible only to admins)
+- Sign-in / sign-up with toast notifications
+- Protected dashboard — redirects to login if unauthenticated
+- Task list: create, inline edit, toggle complete, delete
+- Dashboard overview with task progress bar
+- Admin panel: view and delete any user (admin role only)
 
 ### Infrastructure
-
-- 6-container Docker Compose setup (mongo, redis, user-service, task-service, nginx, frontend)
-- Healthcheck-gated `depends_on` — all services wait for their dependencies to be healthy
-- Nginx regex location blocks (no trailing-slash 301 redirect on OPTIONS preflight)
-- All services fully local — no external cloud dependencies required
+- 6-container Docker Compose: `mongo`, `redis`, `user-service`, `task-service`, `nginx`, `frontend`
+- Healthcheck-gated `depends_on` — each service waits for its dependencies to be healthy before starting
+- Named volumes for MongoDB and Redis — data persists across restarts
+- Multi-stage Dockerfiles — lean production images
+- `output: standalone` Next.js — minimal frontend container
 
 ---
 
 ## API Quick Reference
 
-| Method | Endpoint        | Auth         | Description         |
-| ------ | --------------- | ------------ | ------------------- |
-| POST   | /auth/register  | None         | Register user       |
-| POST   | /auth/login     | None         | Login, get JWT      |
-| GET    | /auth/me        | Bearer token | Get own profile     |
-| GET    | /tasks          | Bearer token | List tasks (cached) |
-| POST   | /tasks          | Bearer token | Create task         |
-| PUT    | /tasks/:id      | Bearer token | Update task         |
-| DELETE | /tasks/:id      | Bearer token | Delete task         |
-| GET    | /auth/users     | Admin only   | List all users      |
-| DELETE | /auth/users/:id | Admin only   | Delete a user       |
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `POST` | `/api/v1/auth/register` | None | Register user |
+| `POST` | `/api/v1/auth/login` | None | Login, receive JWT |
+| `GET` | `/api/v1/auth/me` | Bearer | Get own profile |
+| `GET` | `/api/v1/tasks` | Bearer | List tasks (Redis cached) |
+| `POST` | `/api/v1/tasks` | Bearer | Create task |
+| `PUT` | `/api/v1/tasks/:id` | Bearer | Update task |
+| `DELETE` | `/api/v1/tasks/:id` | Bearer | Delete task |
+| `GET` | `/api/v1/auth/users` | Admin | List all users |
+| `DELETE` | `/api/v1/auth/users/:id` | Admin | Delete a user |
 
-**→ Full API docs:** [docs/API_REFERENCE.md](./docs/API_REFERENCE.md)
+Full request/response examples: [docs/API_REFERENCE.md](./docs/API_REFERENCE.md)
 
 ---
 
 ## Project Structure
 
 ```
-task-manager/
-├── README.md
-├── docker-compose.yml
-├── .env.example                   ← Root env template (JWT_SECRET override)
-├── docs/                          ← All documentation
-│   ├── API_REFERENCE.md
-│   ├── SETUP_GUIDE.md
-│   ├── ARCHITECTURE.md
-│   ├── REDIS_CACHING.md
-│   ├── SECURITY.md
-│   ├── DATABASE_SCHEMA.md
-│   └── SCALABILITY_NOTE.md
-├── frontend/                      ← Next.js app
+.
+├── docker-compose.yml          # Orchestrates all 6 services
+├── .env.example                # Root env template (JWT_SECRET override)
+├── docs/                       # Technical documentation
+├── frontend/                   # Next.js app (standalone output)
 │   ├── Dockerfile
-│   ├── next.config.ts             (output: standalone)
 │   └── src/
-│       ├── app/ (login, register, dashboard)
-│       ├── components/ (Navbar, Sidebar, Loader)
-│       └── context/AppContext.tsx
+│       ├── app/                # Pages: login, register, dashboard
+│       ├── components/         # Navbar, Sidebar, Loader
+│       └── context/            # AppContext — global auth & task state
 └── services/
-    ├── nginx/
-    │   ├── Dockerfile
-    │   └── nginx.conf             (regex locations, CORS, proxy_hide_header)
-    ├── user-service/              ← Auth microservice
-    │   ├── Dockerfile
-    │   ├── package.json
+    ├── nginx/                  # Nginx gateway (CORS, routing)
+    ├── user-service/           # Auth microservice (port 5000)
     │   └── src/
-    │       ├── index.ts           (rate limiting)
-    │       ├── config/db.ts
-    │       ├── controllers/auth.controller.ts
-    │       ├── middleware/ (auth, admin)
-    │       ├── models/user.model.ts
-    │       ├── routes/auth.routes.ts
-    │       └── utils/jwt.ts
-    └── task-service/              ← Task microservice
-        ├── Dockerfile
-        ├── package.json           (+ redis)
+    │       ├── controllers/    # register, login
+    │       ├── middleware/     # auth, admin, validate, requestLogger
+    │       ├── models/         # User schema
+    │       ├── routes/         # /api/v1/auth
+    │       └── utils/          # JWT, Winston logger
+    └── task-service/           # Task CRUD microservice (port 5001)
         └── src/
-            ├── index.ts           (+ connectRedis on boot)
-            ├── config/
-            │   ├── db.ts
-            │   └── redis.ts       ← Redis client
-            ├── controllers/task.controller.ts
-            ├── middleware/auth.middleware.ts
-            ├── models/task.model.ts
-            └── routes/task.routes.ts
+            ├── config/         # MongoDB connection, Redis client
+            ├── controllers/    # getTasks, createTask, updateTask, deleteTask
+            ├── middleware/     # auth, validate, requestLogger
+            ├── models/         # Task schema (userId index)
+            └── routes/         # /api/v1/tasks
 ```
 
 ---
 
-## Author
+## Creating an Admin User
 
-Surya Parua — [GitHub](https://github.com/suryaparua-official)
+Register a normal account via the UI, then promote it via the MongoDB shell:
+
+```bash
+docker exec -it mongo mongosh
+use taskmanager
+db.users.updateOne(
+  { email: "your@email.com" },
+  { $set: { role: "admin" } }
+)
+exit
+```
+
+Log out and back in — the Admin tab will appear in the sidebar.
+
+---
+
+## Environment Configuration
+
+Docker Compose works out of the box with built-in defaults. To override the JWT secret (recommended for any shared environment):
+
+```bash
+cp .env.example .env
+# Edit .env and set a strong JWT_SECRET
+docker compose up --build
+```
+
+See [docs/SETUP_GUIDE.md](./docs/SETUP_GUIDE.md) for full environment variable documentation.
+
+---
 
 ## License
 

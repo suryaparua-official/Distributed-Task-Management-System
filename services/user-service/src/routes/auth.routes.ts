@@ -27,10 +27,10 @@ const router = express.Router();
  *             properties:
  *               name:
  *                 type: string
- *                 example: Surya Parua
+ *                 example: Jane Doe
  *               email:
  *                 type: string
- *                 example: surya@example.com
+ *                 example: jane@example.com
  *               password:
  *                 type: string
  *                 example: secure123
@@ -60,7 +60,7 @@ router.post("/register", validate(registerSchema), register);
  *             properties:
  *               email:
  *                 type: string
- *                 example: surya@example.com
+ *                 example: jane@example.com
  *               password:
  *                 type: string
  *                 example: secure123

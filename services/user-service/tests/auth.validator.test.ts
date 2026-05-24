@@ -6,8 +6,8 @@ import {
 describe("registerSchema", () => {
   it("should pass with valid data", () => {
     const result = registerSchema.safeParse({
-      name: "Surya Parua",
-      email: "surya@example.com",
+      name: "Jane Doe",
+      email: "jane@example.com",
       password: "secure123",
     });
     expect(result.success).toBe(true);
@@ -15,7 +15,7 @@ describe("registerSchema", () => {
 
   it("should fail if name is missing", () => {
     const result = registerSchema.safeParse({
-      email: "surya@example.com",
+      email: "jane@example.com",
       password: "secure123",
     });
     expect(result.success).toBe(false);
@@ -23,8 +23,8 @@ describe("registerSchema", () => {
 
   it("should fail if name is less than 2 characters", () => {
     const result = registerSchema.safeParse({
-      name: "S",
-      email: "surya@example.com",
+      name: "J",
+      email: "jane@example.com",
       password: "secure123",
     });
     expect(result.success).toBe(false);
@@ -32,7 +32,7 @@ describe("registerSchema", () => {
 
   it("should fail if email is invalid", () => {
     const result = registerSchema.safeParse({
-      name: "Surya Parua",
+      name: "Jane Doe",
       email: "not-an-email",
       password: "secure123",
     });
@@ -41,8 +41,8 @@ describe("registerSchema", () => {
 
   it("should fail if password is less than 6 characters", () => {
     const result = registerSchema.safeParse({
-      name: "Surya Parua",
-      email: "surya@example.com",
+      name: "Jane Doe",
+      email: "jane@example.com",
       password: "123",
     });
     expect(result.success).toBe(false);
@@ -50,13 +50,13 @@ describe("registerSchema", () => {
 
   it("should lowercase the email", () => {
     const result = registerSchema.safeParse({
-      name: "Surya Parua",
-      email: "SURYA@EXAMPLE.COM",
+      name: "Jane Doe",
+      email: "JANE@EXAMPLE.COM",
       password: "secure123",
     });
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.email).toBe("surya@example.com");
+      expect(result.data.email).toBe("jane@example.com");
     }
   });
 });
@@ -64,7 +64,7 @@ describe("registerSchema", () => {
 describe("loginSchema", () => {
   it("should pass with valid data", () => {
     const result = loginSchema.safeParse({
-      email: "surya@example.com",
+      email: "jane@example.com",
       password: "secure123",
     });
     expect(result.success).toBe(true);
@@ -79,7 +79,7 @@ describe("loginSchema", () => {
 
   it("should fail if password is empty", () => {
     const result = loginSchema.safeParse({
-      email: "surya@example.com",
+      email: "jane@example.com",
       password: "",
     });
     expect(result.success).toBe(false);

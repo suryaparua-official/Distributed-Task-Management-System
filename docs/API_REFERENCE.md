@@ -52,7 +52,7 @@ Login and receive a JWT token.
 **Body:**
 ```json
 {
-  "email": "surya@example.com",
+  "email": "jane@example.com",
   "password": "password123"
 }
 ```
@@ -77,8 +77,8 @@ Get the currently logged-in user's profile.
   "message": "User profile fetched",
   "user": {
     "_id": "64f1a2b3c4d5e6f7890abc12",
-    "name": "Surya Parua",
-    "email": "surya@example.com",
+    "name": "Jane Doe",
+    "email": "jane@example.com",
     "role": "user",
     "createdAt": "2026-04-22T10:00:00Z"
   }

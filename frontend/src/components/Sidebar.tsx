@@ -1,45 +1,59 @@
 "use client";
 
+import type { ElementType } from "react";
 import { LayoutDashboard, ListTodo, Shield, User } from "lucide-react";
 import { useApp } from "@/context/AppContext";
 
-export default function Sidebar({ active, setActive }: any) {
+type NavItem = { name: string; icon: ElementType };
+
+const BASE_ITEMS: NavItem[] = [
+  { name: "Dashboard", icon: LayoutDashboard },
+  { name: "Tasks", icon: ListTodo },
+  { name: "Profile", icon: User },
+];
+
+export default function Sidebar({
+  active,
+  setActive,
+}: {
+  active: string;
+  setActive: (v: string) => void;
+}) {
   const { role } = useApp();
 
-  const menu = [
-    { name: "Dashboard", icon: LayoutDashboard },
-    { name: "Tasks", icon: ListTodo },
-    { name: "Profile", icon: User },
-  ];
-
-  if (role === "admin") {
-    menu.push({ name: "Admin", icon: Shield });
-  }
+  const items: NavItem[] =
+    role === "admin"
+      ? [...BASE_ITEMS, { name: "Admin", icon: Shield }]
+      : BASE_ITEMS;
 
   return (
-    <div className="w-64 bg-[#111] border-r border-gray-800 p-6">
-      <h2 className="text-gray-500 text-sm mb-4">MENU</h2>
+    <aside className="w-52 bg-[#0d0d1a] border-r border-[#1a1a2e] flex flex-col py-5 px-2.5 flex-shrink-0">
+      <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-600 px-2.5 mb-2">
+        Navigation
+      </p>
 
-      <div className="flex flex-col gap-3">
-        {menu.map((item) => {
-          const Icon = item.icon;
-
+      <nav className="flex flex-col gap-0.5">
+        {items.map(({ name, icon: Icon }) => {
+          const isActive = active === name;
           return (
             <button
-              key={item.name}
-              onClick={() => setActive(item.name)}
-              className={`flex items-center gap-3 px-4 py-2 rounded-md transition-all ${
-                active === item.name
-                  ? "bg-green-500 text-black shadow-md"
-                  : "text-gray-400 hover:bg-[#1f1f1f] hover:text-white"
+              key={name}
+              onClick={() => setActive(name)}
+              className={`flex items-center gap-2.5 w-full px-2.5 py-2 rounded-md text-sm font-medium transition-colors duration-150 ${
+                isActive
+                  ? "bg-indigo-600/15 text-indigo-400 border border-indigo-500/20"
+                  : "text-slate-500 hover:text-[#f1f5f9] hover:bg-white/5 border border-transparent"
               }`}
             >
-              <Icon size={18} />
-              {item.name}
+              <Icon
+                size={15}
+                className={isActive ? "text-indigo-400" : "text-slate-600"}
+              />
+              {name}
             </button>
           );
         })}
-      </div>
-    </div>
+      </nav>
+    </aside>
   );
 }
