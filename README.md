@@ -27,16 +27,31 @@ cd Distributed-Task-Management-System
 docker compose up --build
 ```
 
-All services start and health-check automatically. No manual setup required.
+All 6 services start and health-check automatically. Wait ~30 seconds for all containers to report `healthy`, then open:
 
 | Service | URL |
 |---------|-----|
 | **Frontend** | http://localhost:3000 |
-| **API Gateway** (Nginx) | http://localhost:8000 |
+| **API Gateway** (Nginx) | http://localhost:8080 |
 | **User Service Swagger** | http://localhost:5000/api-docs |
 | **Task Service Swagger** | http://localhost:5001/api-docs |
 | MongoDB | localhost:27017 |
 | Redis | localhost:6379 |
+
+> **Check container health:** `docker compose ps` — all services should show `(healthy)` before using the app.
+
+### Creating an Admin User
+
+There is no default admin account. Register via the UI, then promote the account through the MongoDB shell:
+
+```bash
+docker compose exec mongo mongosh
+use taskmanager
+db.users.updateOne({ email: "your@email.com" }, { $set: { role: "admin" } })
+exit
+```
+
+Log out and back in — the **Admin** panel appears in the sidebar.
 
 ---
 
@@ -138,24 +153,6 @@ Full request/response examples: [docs/API_REFERENCE.md](./docs/API_REFERENCE.md)
 
 ---
 
-## Creating an Admin User
-
-Register a normal account via the UI, then promote it via the MongoDB shell:
-
-```bash
-docker exec -it mongo mongosh
-use taskmanager
-db.users.updateOne(
-  { email: "your@email.com" },
-  { $set: { role: "admin" } }
-)
-exit
-```
-
-Log out and back in — the Admin tab will appear in the sidebar.
-
----
-
 ## Environment Configuration
 
 Docker Compose works out of the box with built-in defaults. To override the JWT secret (recommended for any shared environment):
@@ -167,6 +164,34 @@ docker compose up --build
 ```
 
 See [docs/SETUP_GUIDE.md](./docs/SETUP_GUIDE.md) for full environment variable documentation.
+
+---
+
+## Docker Cleanup
+
+If containers from a previous run are still alive, the next `up` may report a naming conflict. Use `--remove-orphans` to clear them automatically:
+
+```bash
+# Recommended: stop everything, delete volumes, remove orphan containers, rebuild fresh
+docker compose down -v --remove-orphans
+docker compose up --build
+```
+
+Other useful cleanup commands:
+
+```bash
+# Stop containers without deleting data volumes
+docker compose down --remove-orphans
+
+# Remove all stopped containers (project-wide)
+docker compose rm -f
+
+# Nuclear reset — removes all unused images, containers, volumes, and networks
+# WARNING: this affects the entire Docker environment, not just this project
+docker system prune -a --volumes
+```
+
+> Container names are managed automatically by Compose under the `task-manager` project namespace (e.g. `task-manager-nginx-1`). Never set `container_name` manually — it bypasses namespacing and causes conflicts on repeated runs.
 
 ---
 

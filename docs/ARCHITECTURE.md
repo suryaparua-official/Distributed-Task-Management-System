@@ -14,7 +14,7 @@
                       │ HTTP requests from browser
                       ▼
 ┌─────────────────────────────────────────────────────────┐
-│              Nginx Gateway  (:8000 → :80)               │
+│              Nginx Gateway  (:8080 → :80)               │
 │  • Single CORS source of truth                         │
 │  • Regex location blocks (no trailing-slash redirects)  │
 │  • Routes /api/v1/auth/*  → user-service               │
@@ -107,7 +107,7 @@
 ### Login request
 ```
 Browser
-  → POST http://localhost:8000/api/v1/auth/login
+  → POST http://localhost:8080/api/v1/auth/login
   → Nginx (regex match ^/api/v1/auth)
   → proxy_pass http://user_service (port 5000)
   → Rate limiter check (10 req/15min)
@@ -122,7 +122,7 @@ Browser
 ### Fetch tasks (cache hit)
 ```
 Browser
-  → GET http://localhost:8000/api/v1/tasks
+  → GET http://localhost:8080/api/v1/tasks
   → Nginx (regex match ^/api/v1/tasks)
   → proxy_pass http://task_service (port 5001)
   → authMiddleware — verify JWT
@@ -134,7 +134,7 @@ Browser
 ### Create task (cache invalidation)
 ```
 Browser
-  → POST http://localhost:8000/api/v1/tasks
+  → POST http://localhost:8080/api/v1/tasks
   → task-service → createTask()
   → Task.create({ title, userId })
   → redis.del("tasks:{userId}")  ← cache invalidated

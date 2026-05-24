@@ -1,6 +1,6 @@
 # API Reference
 
-**Base URL (via Nginx gateway):** `http://localhost:8000/api/v1`
+**Base URL (via Nginx gateway):** `http://localhost:8080/api/v1`
 
 **Direct service URLs (dev only):**
 - User Service: `http://localhost:5000/api/v1`

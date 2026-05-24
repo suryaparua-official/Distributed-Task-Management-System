@@ -23,7 +23,7 @@ docker compose up --build
 
 # 3. Wait ~30 seconds for all healthchecks to pass, then visit:
 #    Frontend:             http://localhost:3000
-#    API Gateway:          http://localhost:8000
+#    API Gateway:          http://localhost:8080
 #    User Service Swagger: http://localhost:5000/api-docs
 #    Task Service Swagger: http://localhost:5001/api-docs
 #    Redis:                localhost:6379
@@ -33,8 +33,24 @@ docker compose up --build
 ### Stop services
 
 ```bash
-docker compose down          # stop containers, keep volumes
-docker compose down -v       # stop + delete all data (fresh start)
+docker compose down                      # stop containers, keep volumes
+docker compose down -v                   # stop + delete all data (fresh start)
+docker compose down -v --remove-orphans  # also remove leftover containers from old runs
+```
+
+### Clean rebuild after errors or naming conflicts
+
+If a previous run left stopped containers behind, the next `up` may report a name conflict. Fix it with:
+
+```bash
+docker compose down -v --remove-orphans
+docker compose up --build
+```
+
+For a full Docker environment reset (removes all unused images, containers, and volumes — affects all projects):
+
+```bash
+docker system prune -a --volumes
 ```
 
 ### Rebuild a single service after code change
@@ -115,7 +131,7 @@ npm run dev
 After starting, register a normal user, then promote them:
 
 ```bash
-docker exec -it mongo mongosh
+docker compose exec mongo mongosh
 use taskmanager
 db.users.updateOne(
   { email: "your@email.com" },
@@ -171,7 +187,7 @@ NEXT_PUBLIC_TASK_API=http://localhost:5001/api/v1
 docker compose ps
 
 # Test nginx gateway
-curl http://localhost:8000
+curl http://localhost:8080
 # → "Nginx Gateway Running"
 
 # Test user service health
@@ -183,11 +199,11 @@ curl http://localhost:5001/health
 # → {"status":"OK"}
 
 # Test Redis
-docker exec -it redis redis-cli ping
+docker compose exec redis redis-cli ping
 # → PONG
 
 # Register a user
-curl -X POST http://localhost:8000/api/v1/auth/register \
+curl -X POST http://localhost:8080/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{"name":"Test","email":"test@example.com","password":"password123"}'
 # → {"message":"Registered successfully"}

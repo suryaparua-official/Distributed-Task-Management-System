@@ -55,11 +55,11 @@ The API response includes `fromCache: true/false` so you can verify caching is w
 
 ```bash
 # First call — cache miss
-curl http://localhost:8000/api/v1/tasks -H "Authorization: Bearer $TOKEN"
+curl http://localhost:8080/api/v1/tasks -H "Authorization: Bearer $TOKEN"
 # → { ..., "fromCache": false }
 
 # Second call within 60s — cache hit
-curl http://localhost:8000/api/v1/tasks -H "Authorization: Bearer $TOKEN"
+curl http://localhost:8080/api/v1/tasks -H "Authorization: Bearer $TOKEN"
 # → { ..., "fromCache": true }
 ```
 
@@ -76,7 +76,7 @@ curl http://localhost:8000/api/v1/tasks -H "Authorization: Bearer $TOKEN"
 
 ```bash
 # Connect to Redis CLI
-docker exec -it redis redis-cli
+docker compose exec redis redis-cli
 
 # List all cache keys
 KEYS tasks:*

@@ -91,7 +91,7 @@ users (1) ──────────────── (many) tasks
 
 ```bash
 # Open Mongo shell
-docker exec -it mongo mongosh
+docker compose exec mongo mongosh
 
 # Switch to database
 use taskmanager
