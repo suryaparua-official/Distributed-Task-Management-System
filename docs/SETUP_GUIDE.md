@@ -15,8 +15,8 @@
 
 ```bash
 # 1. Clone
-git clone https://github.com/suryaparua-official/primetrade.ai-assignment.git
-cd primetrade.ai-assignment
+git clone https://github.com/suryaparua-official/Distributed-Task-Management-System.git
+cd Distributed-Task-Management-System
 
 # 2. Start everything
 docker compose up --build

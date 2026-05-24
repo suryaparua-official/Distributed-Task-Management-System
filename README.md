@@ -21,8 +21,8 @@ A production-ready, full-stack task management application built on a microservi
 ## Quick Start
 
 ```bash
-git clone https://github.com/suryaparua-official/primetrade.ai-assignment.git
-cd primetrade.ai-assignment
+git clone https://github.com/suryaparua-official/Distributed-Task-Management-System.git
+cd Distributed-Task-Management-System
 
 docker compose up --build
 ```
